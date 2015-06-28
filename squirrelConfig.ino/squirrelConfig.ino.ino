@@ -209,7 +209,7 @@ void loop()
            client.println("<br />"); 
            client.println("<a href=\"/?button2on\"\">Rotate Left</a>");
            client.println("<a href=\"/?button2off\"\">Rotate Right</a><br />"); 
-           client.println("<p>Created by Rui Santos. Visit http://randomnerdtutorials.com for more projects!</p>");  
+           client.println("<p>Created by Michael P Russell</p>");  
            client.println("<br />"); 
           
           // output the value of each analog input pin
