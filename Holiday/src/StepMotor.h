@@ -5,16 +5,17 @@
  *      Author: Cyber
  */
 
-#include "SoftwareServo.h"
-
 #ifndef STEPMOTOR_H_
 #define STEPMOTOR_H_
+
+//#include "SoftwareServo.h"
+#include <stdlib.h>
 
 class StepMotor {
 public:
 	StepMotor();
 	virtual ~StepMotor();
-	void RndMove();
+	void MyRndMove();
 	int MaxDist;
 	int MinDist;
 	int CurrentPosition;
@@ -24,7 +25,7 @@ private:
 	int GetMin();
 
 	void Move(int distance);
-	SoftwareServo myServo;
+	//SoftwareServo myServo;
 };
 
 #endif /* STEPMOTOR_H_ */

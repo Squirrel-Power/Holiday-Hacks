@@ -6,13 +6,16 @@
  */
 
 #include "StepMotor.h"
+#include <iostream>
 #include <stdlib.h>
+#include <string>
 
 StepMotor::StepMotor() {
 	MaxDist = GetMax();	//Determine Max distance for motor
 	MinDist = GetMin();	//Determine Min distance for motor
 	StepMotor::CurrentPosition = StepMotor::MinDist;	//Set default position at Min distance
-	StepMotor::myServo = new SoftwareServo(5);
+	//StepMotor::myServo.attach(5);
+}
 
 StepMotor::~StepMotor() {
 	// TODO Auto-generated destructor stub
@@ -22,7 +25,7 @@ StepMotor::~StepMotor() {
  * GetMax Function
  * This function will trigger the motor to run until hitting its max length.
  */
-int GetMax(){
+int StepMotor::GetMax(){
 	int max_distance = 100;
 
 	return max_distance;
@@ -32,7 +35,7 @@ int GetMax(){
  * GetMin Function
  * This function will trigger the motor to run until hitting its min length.
  */
-int GetMin(){
+int StepMotor::GetMin(){
 	int min_distance = 0;
 
 	return min_distance;
@@ -43,7 +46,7 @@ int GetMin(){
  * This function will trigger the motor to move a random distance between the
  * Minimum and Maximum distance values.
  */
-void RndMove()
+void StepMotor::MyRndMove()
 {
 	int rnd = rand() % 100 + 1;				//Determine random distance to move
 	int rndDirection = rand() % 100;	//Pick random direction
@@ -70,9 +73,8 @@ void RndMove()
  * This function will trigger the motor to move an object a specified amount.
  * Parameters (Distance)
  */
-void Move(int Distance)
+void StepMotor::Move(int Distance)
 {
-	//NOTE: This code needs determined. This will be based mostly on the motor utilized.
-	std::cout << StepMotor::CurrentPosition;
-	StepMotor::myServo.write(Distance);
+	std::cout << "5";
+	//StepMotor::myServo.write(Distance);
 }

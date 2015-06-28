@@ -7,9 +7,8 @@
 #include <iostream>
 #include <unistd.h>
 
+//#include "StepMotor.cpp"
 #include "StepMotor.h"
-
-//StepMotor UfoMotor;
 
 int main()
 {
@@ -21,8 +20,10 @@ int main()
 	bool EdisonBoard = false;
 	bool runProgram = true;
 
-	StepMotor* UfoMotor = new StepMotor();
-	//UfoMotor = new StepMotor;
+	StepMotor Ufo;
+
+	//StepMotor* ptr_UfoMotor;
+	//ptr_UfoMotor = new StepMotor();
 
 	switch (platform) {
 		case MRAA_INTEL_GALILEO_GEN1:
@@ -65,9 +66,11 @@ int main()
 		sleep(1);
 
 		//(*UfoMotor).RndMove();
-		*UfoMotor->RndMove();
+		//*UfoMotor->RndMove();
 		//UfoMotor->RndMove();
 		//UfoMotor.RndMove();
+		Ufo.MyRndMove();
+
 		sleep(10);
 	}
 
