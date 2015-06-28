@@ -7,14 +7,12 @@
 
 #include "StepMotor.h"
 #include <stdlib.h>
-//#include "SoftwareServo.h"
 
 StepMotor::StepMotor() {
 	MaxDist = GetMax();	//Determine Max distance for motor
 	MinDist = GetMin();	//Determine Min distance for motor
 	StepMotor::CurrentPosition = StepMotor::MinDist;	//Set default position at Min distance
 	StepMotor::myServo = new SoftwareServo(5);
-}
 
 StepMotor::~StepMotor() {
 	// TODO Auto-generated destructor stub

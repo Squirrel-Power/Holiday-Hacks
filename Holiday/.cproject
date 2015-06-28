@@ -38,10 +38,10 @@
 								</inputType>
 							</tool>
 							<tool id="com.intel.iotdevkit.ide.tool.gnu.cross.cpp.linker.625441289" name="Cross G++ Linker" superClass="com.intel.iotdevkit.ide.tool.gnu.cross.cpp.linker">
-								<option id="gnu.cpp.link.option.libs.554279981" superClass="gnu.cpp.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SoftwareServo."/>
+								<option id="gnu.cpp.link.option.libs.554279981" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="SoftwareServo"/>
 								</option>
-								<option id="gnu.cpp.link.option.paths.980386404" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+								<option id="gnu.cpp.link.option.paths.980386404" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;D:\Harris\Intel_Edison\Libraries\SoftwareServo&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1461838686" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">

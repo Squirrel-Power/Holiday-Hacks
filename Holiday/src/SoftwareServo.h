@@ -2,7 +2,7 @@
 #define SoftwareServo_h
 
 //#include <WProgram.h>
-#include <Arduino.h>
+//#include <Arduino.h>
 #include <inttypes.h>
 
 class SoftwareServo

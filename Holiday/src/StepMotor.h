@@ -5,6 +5,8 @@
  *      Author: Cyber
  */
 
+#include "SoftwareServo.h"
+
 #ifndef STEPMOTOR_H_
 #define STEPMOTOR_H_
 
