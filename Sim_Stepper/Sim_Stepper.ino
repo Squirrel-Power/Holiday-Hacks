@@ -31,12 +31,12 @@ Servo groveServo;
 
 const int stp = 13;  //connect pin 13 to step
 const int dir = 12;  // connect pin 12 to dir
-const int pinButton = 3;
+const int pinButton = 4;
 int steps = 0;
 int direc = 1;
 int last_state_switch = 0;
 const int debounce_time = 50;
-const int pinServo = 2;
+const int pinServo = 3;
 int servo_step = 0;
 void setup() 
 {
@@ -63,7 +63,7 @@ void loop()
   servo_step += direc;
   steps += direc;
   lcd.print(steps);
-  groveServo.write(servo_step);
+  //groveServo.write(servo_step);
   delay(100);
   lcd.clear();
 }

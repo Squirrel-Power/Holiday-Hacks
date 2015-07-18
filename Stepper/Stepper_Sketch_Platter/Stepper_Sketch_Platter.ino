@@ -8,6 +8,10 @@
 //connect VMOT to power source (9v battery + term)
 //connect GRD to power source (9v battery - term)
 
+#include <Wire.h>
+#include "rgb_lcd.h"
+
+rgb_lcd lcd;
 
 int stp = 13;  //connect pin 13 to step
 int dir = 12;  // connect pin 12 to dir
@@ -17,15 +21,30 @@ int maxPosition = 0;
 int minPosition = 0;
 boolean moveInProgress = false;
 int currentPosition = 0;
+int last_state_switch = 0;
 
 int clockwise = 0;
 int counterClockwise = 1;
+
+const int pinButton = 4;
+
+boolean buttonPressed = false;
+
+const int debounce_time = 50;
+
+
 
 void setup() 
 {                
   pinMode(stp, OUTPUT);
   pinMode(dir, OUTPUT);       
   
+  lcd.begin(16, 2);
+  
+  pinMode(pinButton, INPUT);
+  attachInterrupt(pinButton,switch_state, FALLING);
+  last_state_switch = millis();
+
   autoCalibrate();
 }
 
@@ -34,54 +53,30 @@ void loop()
 {
   while(!moveInProgress)
   {
-    MoveInProgress = true;
+    lcd.print("S
+    moveInProgress = true;
     rndMove();
   }
   
-  /*if (a <  200)  //sweep 200 step in dir 1
-   {
-    a++;
-    digitalWrite(stp, HIGH);   
-    delay(10);               
-    digitalWrite(stp, LOW);  
-    delay(10);              
-   }
-  else 
-   {
-    digitalWrite(dir, HIGH);
-    a++;
-    digitalWrite(stp, HIGH);  
-    delay(10);               
-    digitalWrite(stp, LOW);  
-    delay(10);
-    
-    if (a>400)    //sweep 200 in dir 2
-     {
-      a = 0;
-      digitalWrite(dir, LOW);
-     }
-    }*/
+
 }
 
 void autoCalibrate()
 {
-   boolean buttonPressed = false;
-   
+    
    //Get MaxValue
-   while(!buttonpressed)
+   while(!buttonPressed)
    {
      Move(clockwise, 1);  //Move clockwise until button press is detected
-     currentPosition++;
    }
-   maxPosition = stepPosition;
+   maxPosition = currentPosition;
    
    buttonPressed = false;
   while(!buttonPressed)
   {
     Move(counterClockwise, 1);  //Move one step counter-clockwise until button press is detected;
-    currentPosition--;
   }
-  minPosition = stepPosition;  
+  minPosition = currentPosition;  
 }
 
 void Move (int direction, int steps)
@@ -99,10 +94,22 @@ void Move (int direction, int steps)
   //Move indicated number of steps
   for(int x = 0; x < steps; x++)
   {
-    digitalWrite(stp, HIGH);   
+    /*digitalWrite(stp, HIGH);   
     delay(10);               
     digitalWrite(stp, LOW);  
-    delay(10);
+    delay(10);*/
+    currentPosition;
+    lcd.clear();
+    lcd.print(currentPosition);
+    delay(100);
+    /*if(direction == clockwise)
+    {
+      currentPosition++;
+    }
+    else
+    {
+      currentPosition--;
+    }  */
   }
 }
 
@@ -130,4 +137,14 @@ void rndMove()
   }
   Move(rndDirection, rnd);
   moveInProgress = false;
+}
+
+void switch_state()
+{  
+    if((millis()- last_state_switch) > debounce_time)
+    { 
+        buttonPressed = true;
+        last_state_switch = millis();
+    }
+  
 }
