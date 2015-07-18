@@ -55,8 +55,6 @@ void loop()
     moveInProgress = true;
     rndMove();
   }
-  
-
 }
 
 void autoCalibrate()
@@ -77,7 +75,9 @@ void autoCalibrate()
 }
 
 void Move (int direction, int steps)
-{
+{ 
+  lcd.clear();
+  
   if(direction == clockwise)
   {
     digitalWrite(dir, HIGH); 
@@ -89,9 +89,10 @@ void Move (int direction, int steps)
 
   for(int x = 0; x < steps; x++)
   {
-    currentPosition;
-    lcd.clear();
+    lcd.setCursor(0,0);
     lcd.print(currentPosition);
+    lcd.setCursor(0,1);
+    lcd.print(direction);
     delay(100);
    if(direction == clockwise)
     {
