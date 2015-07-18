@@ -13,9 +13,8 @@
 
 rgb_lcd lcd;
 
-int stp = 13;  //connect pin 13 to step
-int dir = 12;  // connect pin 12 to dir
-int a = 0;     //  gen counter
+int stp = 13;  
+int dir = 12; 
 
 int maxPosition = 0;
 int minPosition = 0;
@@ -53,7 +52,6 @@ void loop()
 {
   while(!moveInProgress)
   {
-    lcd.print("S
     moveInProgress = true;
     rndMove();
   }
@@ -64,24 +62,22 @@ void loop()
 void autoCalibrate()
 {
     
-   //Get MaxValue
    while(!buttonPressed)
    {
-     Move(clockwise, 1);  //Move clockwise until button press is detected
+     Move(clockwise, 1); 
    }
    maxPosition = currentPosition;
    
    buttonPressed = false;
   while(!buttonPressed)
   {
-    Move(counterClockwise, 1);  //Move one step counter-clockwise until button press is detected;
+    Move(counterClockwise, 1);
   }
   minPosition = currentPosition;  
 }
 
 void Move (int direction, int steps)
 {
-  //Set direction
   if(direction == clockwise)
   {
     digitalWrite(dir, HIGH); 
@@ -91,36 +87,28 @@ void Move (int direction, int steps)
     digitalWrite(dir, LOW);
   }
 
-  //Move indicated number of steps
   for(int x = 0; x < steps; x++)
   {
-    /*digitalWrite(stp, HIGH);   
-    delay(10);               
-    digitalWrite(stp, LOW);  
-    delay(10);*/
     currentPosition;
     lcd.clear();
     lcd.print(currentPosition);
     delay(100);
-    /*if(direction == clockwise)
+   if(direction == clockwise)
     {
       currentPosition++;
     }
     else
     {
       currentPosition--;
-    }  */
+    } 
   }
 }
 
 void rndMove()
 {
-  //int rnd = rand() % 100 + 1;	  //Determine random distance to move
   int rnd = random(minPosition, maxPosition);
-  //int rndDirection = rand() % 100;  //Pick random direction
   int rndDirection = random(clockwise, counterClockwise);
   
-  //if(rndDirection % 2 == 0)	//Move towards Max value
   if(rndDirection == clockwise)
   {
 	if(rnd +  currentPosition > maxPosition)
@@ -128,7 +116,7 @@ void rndMove()
             rnd = maxPosition - currentPosition;
 	}
   }
-  else	//Move towards Min value
+  else
   {
     if(currentPosition - rnd < minPosition)
     {
