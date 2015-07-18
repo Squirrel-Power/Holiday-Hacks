@@ -21,8 +21,8 @@ File myFile;  //Global file handle
 
 //Wifi Settings - 
 //Todo: should all go into a configuration
-char ssid[] = "TheDarkSide";      // your network SSID (name) 
-char pass[] = "Shorty2y";         // your network password
+char ssid[] = "CyberNet";      // your network SSID (name) 
+char pass[] = "12Belize16";         // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;

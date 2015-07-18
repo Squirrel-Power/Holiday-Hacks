@@ -7,7 +7,7 @@
 
 #include "StepMotor.h"
 #include <iostream>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string>
 
 StepMotor::StepMotor() {
@@ -76,5 +76,7 @@ void StepMotor::MyRndMove()
 void StepMotor::Move(int Distance)
 {
 	std::cout << "5";
+	//std::string temp = StepMotor::CurrentPosition;
+	//std::cout << temp;
 	//StepMotor::myServo.write(Distance);
 }
