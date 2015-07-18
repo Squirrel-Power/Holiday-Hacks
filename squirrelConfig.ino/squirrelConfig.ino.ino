@@ -199,28 +199,46 @@ void loop()
           client.println("<!DOCTYPE HTML>");
           client.println("<html>");
           
+          //Write javascript functions
+           client.println("<script>");  
+           client.println("var ledStatusVar = "Off";");
+           client.println("function setLedStatus() {");
+           client.println("if(ledStatusVar == "Off")");
+           client.println("ledStatusVar = "On";");
+           client.println("else");
+           client.println("ledStatusVar = "Off"");
+           client.println("document.getElementById("ledStatus").innerHTML = ledStatusVar");
+           client.println("}");
+           client.println("</script>");           
+          
           //Let add a button to kick off something
-           client.println("<br />");  
-           client.println("<a href=\"/?button1on\"\">Turn On LED</a>");
-           client.println("<a href=\"/?button1off\"\">Turn Off LED</a><br />");   
-           client.println("<br />"); 
+           client.println("<br>");  
+           client.println("<button type=\"button\" onclick=\"setLedStatus()\">Turn On LED</button><br><br>");
+           client.println("<button type=\"button\" onclick=\"setLedStatus()\">Turn Off LED</button><br><br>");   
+           client.println("<br>"); 
+           
+           //Let add a button to kick off something
+           client.println("<br>");  
+           client.println("<button type=\"button\">Start UFO Program</button><br><br>");
+           client.println("<button type=\"button\">Stop UFO Program</button><br><br>");   
+           client.println("<br>"); 
            
          // Totally from the Lego to fire!
-           client.println("<br />"); 
-           client.println("<a href=\"/?button2on\"\">Rotate Left</a>");
-           client.println("<a href=\"/?button2off\"\">Rotate Right</a><br />"); 
-           client.println("<p>Created by Michael P Russell</p>");  
-           client.println("<br />"); 
+           client.println("<button type=\"button\">Rotate Clockwise</button><br><br>");
+           client.println("<button type=\"button\">Rotate Counter-clockwise</button><br><br>"); 
+           client.println("<br>"); 
           
           // output the value of each analog input pin
           for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
             int sensorReading = analogRead(analogChannel);
-            client.print("analog input ");
+            client.print("Analog input <b>");
             client.print(analogChannel);
-            client.print(" is ");
+            client.print("</b> is <b>");
             client.print(sensorReading);
-            client.println("<br />");       
+            client.println("</b><br>");       
           }
+          
+          client.println("<p>Created by Michael P Russell, Dustin Platter, and Siddhartha Kumar</p>");  
           
           //END of PAGE
           client.println("</html>");
