@@ -86,13 +86,12 @@ void Move (int direction, int steps)
   {
     digitalWrite(dir, LOW);
   }
-
+    lcd.setCursor(0,1);
+    lcd.print(direction);
   for(int x = 0; x < steps; x++)
   {
     lcd.setCursor(0,0);
     lcd.print(currentPosition);
-    lcd.setCursor(0,1);
-    lcd.print(direction);
     delay(100);
    if(direction == clockwise)
     {
@@ -103,25 +102,26 @@ void Move (int direction, int steps)
       currentPosition--;
     } 
   }
+  delay(100);
 }
 
 void rndMove()
 {
-  int rnd = random(minPosition, maxPosition);
-  int rndDirection = random(clockwise, counterClockwise);
+  int rnd = random(minPosition, maxPosition + 1);
+  int rndDirection = random(clockwise, counterClockwise + 1);
   
   if(rndDirection == clockwise)
   {
-	if(rnd +  currentPosition > maxPosition)
+	if((rnd +  currentPosition) > maxPosition)
 	{
-            rnd = maxPosition - currentPosition;
+            rnd = maxPosition - currentPosition-1;
 	}
   }
   else
   {
-    if(currentPosition - rnd < minPosition)
+    if((currentPosition - rnd) < minPosition)
     {
-      rnd = currentPosition - minPosition;
+      rnd = currentPosition - minPosition+1;
     }
   }
   Move(rndDirection, rnd);
