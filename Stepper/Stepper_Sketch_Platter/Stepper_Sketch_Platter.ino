@@ -18,6 +18,9 @@ int minPosition = 0;
 boolean moveInProgress = false;
 int currentPosition = 0;
 
+int clockwise = 0;
+int counterClockwise = 1;
+
 void setup() 
 {                
   pinMode(stp, OUTPUT);
@@ -67,7 +70,7 @@ void autoCalibrate()
    //Get MaxValue
    while(!buttonpressed)
    {
-     Move(1, 1);  //Move clockwise until button press is detected
+     Move(clockwise, 1);  //Move clockwise until button press is detected
      currentPosition++;
    }
    maxPosition = stepPosition;
@@ -75,7 +78,7 @@ void autoCalibrate()
    buttonPressed = false;
   while(!buttonPressed)
   {
-    Move(0, 1);  //Move one step counter-clockwise until button press is detected;
+    Move(counterClockwise, 1);  //Move one step counter-clockwise until button press is detected;
     currentPosition--;
   }
   minPosition = stepPosition;  
@@ -84,7 +87,7 @@ void autoCalibrate()
 void Move (int direction, int steps)
 {
   //Set direction
-  if(direction == 1)
+  if(direction == clockwise)
   {
     digitalWrite(dir, HIGH); 
   }
@@ -105,10 +108,13 @@ void Move (int direction, int steps)
 
 void rndMove()
 {
-  int rnd = rand() % 100 + 1;	  //Determine random distance to move
-  int rndDirection = rand() % 100;  //Pick random direction
+  //int rnd = rand() % 100 + 1;	  //Determine random distance to move
+  int rnd = random(minPosition, maxPosition);
+  //int rndDirection = rand() % 100;  //Pick random direction
+  int rndDirection = random(clockwise, counterClockwise);
   
-  if(rndDirection % 2 == 0)	//Move towards Max value
+  //if(rndDirection % 2 == 0)	//Move towards Max value
+  if(rndDirection == clockwise)
   {
 	if(rnd +  currentPosition > maxPosition)
 	{
