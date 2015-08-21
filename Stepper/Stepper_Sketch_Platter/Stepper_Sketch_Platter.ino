@@ -9,25 +9,30 @@
 //connect GRD to power source (9v battery - term)
 
 #include <Wire.h>
-#include "rgb_lcd.h"
+//#include "rgb_lcd.h"
 
-rgb_lcd lcd;
+//rgb_lcd lcd;
 
 int stp = 13;  
 int dir = 12; 
+int rst = 8;
 
 int maxPosition = 0;
 int minPosition = 0;
 boolean moveInProgress = false;
 int currentPosition = 0;
 int last_state_switch = 0;
+int last_state_switch2 = 0;
+int count_pinbutton2 = 0;
 
 int clockwise = 0;
 int counterClockwise = 1;
 
 const int pinButton = 4;
+const int pinButton2 = 3;
 
 boolean buttonPressed = false;
+boolean buttonPressed2 = false;
 
 const int debounce_time = 50;
 
@@ -37,12 +42,16 @@ void setup()
 {                
   pinMode(stp, OUTPUT);
   pinMode(dir, OUTPUT);       
-  
-  lcd.begin(16, 2);
-  
+  digitalWrite(rst,LOW);
+  delay(10);
+  digitalWrite(rst,HIGH);
+  Serial1.begin(9600);
   pinMode(pinButton, INPUT);
+  pinMode(pinButton2, INPUT);
   attachInterrupt(pinButton,switch_state, FALLING);
+  attachInterrupt(pinButton2,switch_state2, FALLING);
   last_state_switch = millis();
+  last_state_switch2 = millis();
 
   autoCalibrate();
 }
@@ -55,6 +64,14 @@ void loop()
     moveInProgress = true;
     rndMove();
   }
+}
+
+void one_step()
+{
+    digitalWrite(stp, HIGH);   
+    delay(10);               
+    digitalWrite(stp, LOW);  
+    delay(10); 
 }
 
 void autoCalibrate()
@@ -76,7 +93,6 @@ void autoCalibrate()
 
 void Move (int direction, int steps)
 { 
-  lcd.clear();
   
   if(direction == clockwise)
   {
@@ -86,13 +102,11 @@ void Move (int direction, int steps)
   {
     digitalWrite(dir, LOW);
   }
-    lcd.setCursor(0,1);
-    lcd.print(direction);
+  
   for(int x = 0; x < steps; x++)
   {
-    lcd.setCursor(0,0);
-    lcd.print(currentPosition);
-    delay(100);
+   // delay(100);
+    one_step();
    if(direction == clockwise)
     {
       currentPosition++;
@@ -102,7 +116,7 @@ void Move (int direction, int steps)
       currentPosition--;
     } 
   }
-  delay(100);
+ // delay(100);
 }
 
 void rndMove()
@@ -134,6 +148,22 @@ void switch_state()
     { 
         buttonPressed = true;
         last_state_switch = millis();
+    }
+  
+}
+
+void switch_state2()
+{  
+    if((millis()- last_state_switch2) > debounce_time)
+    {   
+       if(count_pinbutton2%3 == 0)
+          Serial1.print("c");
+        else if(count_pinbutton2%3 == 1)
+          Serial1.print("h");
+        else if(count_pinbutton2%3 == 2)
+          Serial1.print("x");
+        last_state_switch2 = millis();
+        count_pinbutton2++;
     }
   
 }
