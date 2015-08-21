@@ -20,9 +20,15 @@
 File myFile;  //Global file handle
 
 //Wifi Settings - 
-//Todo: should all go into a configuration
-char ssid[] = "CyberNet";      // your network SSID (name) 
-char pass[] = "12Belize16";         // your network password
+//Todo: should all go into a configuration 
+//Dustin's house
+//char ssid[] = "CyberGuest";      // your network SSID (name) 
+//char pass[] = "Belize38";         // your network password
+//char ssid[] = "CyberNet";      // your network SSID (name) 
+//char pass[] = "12Belize16";         // your network password
+//My House - Make this input from config
+char ssid[] = "TheDarkSide";      // your network SSID (name) 
+char pass[] = "Shorty2y";         // your network password
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -43,72 +49,38 @@ const int led = 8; //  and the LED
 Servo groveServo;
 int pos = 0;  //position of servo
 
+/******************************************************
+ * readWiFiSettings - Read WiFi settings
+ ******************************************************/
+bool readWiFiSettings()
+{
+  // Open the file for reading:
+  myFile = SD.open("squirrelConfig.txt");
+  if (myFile) {
+    Serial.println("squirrelConfig.txt");
+    Serial.println("Open WIFI conf.");
+   // read from the file until there's nothing else in it:
+    while (myFile.available()) 
+    {
+    	Serial.write(myFile.read());
+    }
+    // close the file:
+    myFile.close();
+  } else {
+  	// if the file didn't open, print an error:
+    Serial.println("error opening squirrelConfig.txt");
+    return false;
+  }
+  
+  return true;
+}
 
 /******************************************************
- * setup - This is run only once!
+ * writeConfig - write osme default valeus for now.
  ******************************************************/
-void setup()
-{  
-  /////////////////////////////////////////////////////////
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-   while (!Serial) 
-   {
-    ; // wait for serial port to connect. Needed for Leonardo only
-   }
-   
-   Serial.print("Initializing SD card...");
-  
-   // check for the presence of the shield:
-   Serial.print("check for the presence of the shield");
-   if (WiFi.status() == WL_NO_SHIELD) 
-   {
-     Serial.println("WiFi shield not present"); 
-     // don't continue:
-     while(true);
-   } 
-  
-  Serial.print("checking WiFi...");
-  String fv = WiFi.firmwareVersion();
-  if( fv != "1.1.0" )
-    Serial.println("Please upgrade the firmware");
-  
-  // attempt to connect to Wifi network:
-  Serial.print("connecting WiFi...");
-  while ( status != WL_CONNECTED) 
-  { 
-    Serial.print("Attempting to connect to SSID: ");
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:    
-    status = WiFi.begin(ssid, pass);
-
-    // wait 10 seconds for connection:
-    delay(10000);
-  } 
-  server.begin();
-  // you're connected now, so print out the status:
-  printWifiStatus();
-  ////////////////////////////////////////////////////////
-  
-  // Set up the servo motor
-  // Tell the Servo object which pin to use to control the servo.
-  groveServo.attach(pinServo);
-  // Configure the angle sensor's pin for input signals.
-  pinMode(potentiometer, INPUT);
-  ////////////////////////////////////////////////////////
-  // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
-  // Note that even if it's not used as the CS pin, the hardware SS pin 
-  // (10 on most Arduino boards, 53 on the Mega) must be left as an output 
-  // or the SD library functions will not work. 
-   pinMode(10, OUTPUT);
-   
-  if (!SD.begin(4)) {
-    Serial.println("initialization failed!");
-    return;
-  }
-  Serial.println("initialization done.");
-  
-  // open the file. note that only one file can be open at a time,
+bool writeConfig()
+{
+   // open the file. note that only one file can be open at a time,
   // so you have to close this one before opening another.
   myFile = SD.open("squirrelConfig.txt", FILE_WRITE);
   
@@ -133,22 +105,128 @@ void setup()
   } else {
     // if the file didn't open, print an error:
     Serial.println("error opening squirrelConfig.txt");
+    return false;
+  }
+    return true;
+}
+
+/******************************************************
+ * ServoSetup - 
+ * ToDo: groveServo is Still Global, fix this.
+ ******************************************************/
+bool ServoSetup()
+{
+  // Set up the servo motor
+  // Tell the Servo object which pin to use to control the servo.
+  groveServo.attach(pinServo);
+  // Configure the angle sensor's pin for input signals.
+  pinMode(potentiometer, INPUT);
+  ////////////////////////////////////////////////////////
+  // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
+  // Note that even if it's not used as the CS pin, the hardware SS pin 
+  // (10 on most Arduino boards, 53 on the Mega) must be left as an output 
+  // or the SD library functions will not work. 
+   pinMode(10, OUTPUT);
+}
+
+/******************************************************
+ * WiFiSetup - 
+ ******************************************************/
+bool WiFiSetup()
+{
+     // check for the presence of the shield:
+   Serial.print("check for the presence of the shield");
+   if (WiFi.status() == WL_NO_SHIELD) 
+   {
+     Serial.println("WiFi shield not present"); 
+     // don't continue:
+     while(true);
+   } 
+  
+  Serial.print("checking WiFi...");
+  String fv = WiFi.firmwareVersion();
+  if( fv != "1.1.0" )
+  {
+    Serial.println("Please upgrade the firmware");
+    return false;
   }
   
-  // re-open the file for reading:
-  myFile = SD.open("squirrelConfig.txt");
-  if (myFile) {
-    Serial.println("squirrelConfig.txt:");
-    
-    // read from the file until there's nothing else in it:
-    while (myFile.available()) {
-    	Serial.write(myFile.read());
+  // attempt to connect to Wifi network:
+  Serial.print("connecting WiFi...");
+  int connection_count = 0;
+  while ( status != WL_CONNECTED) 
+  { 
+    //check for timeout
+    if(connection_count > 1000)
+    {
+      Serial.print("Attempting to connect to SSID: FAILED, to many attemps");
+      connection_count = 0;
+      return false;
     }
-    // close the file:
-    myFile.close();
-  } else {
-  	// if the file didn't open, print an error:
-    Serial.println("error opening squirrelConfig.txt");
+    
+    Serial.print("Attempting to connect to SSID: ");
+    Serial.println(ssid);
+    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:    
+    status = WiFi.begin(ssid, pass);
+
+    // wait 10 seconds for connection:
+    delay(10000);
+    connection_count++;
+  } 
+  
+  connection_count = 0;
+  server.begin();
+  // you're connected now, so print out the status:
+  printWifiStatus();
+}
+
+/******************************************************
+ * WiFiSetup - 
+ ******************************************************/
+bool SerialSetup()
+{
+  /////////////////////////////////////////////////////////
+  // Open serial communications and wait for port to open:
+  Serial.begin(9600);
+   while (!Serial) 
+   { ; } // wait for serial port to connect. Needed for Leonardo only
+}
+/******************************************************
+ * setup - This is run only once!
+ ******************************************************/
+void setup()
+{  
+  ////////////////////////////////////////////////////////
+  // Serial Device Setup
+  SerialSetup();
+  
+  // Individual Device Setup
+  WiFiSetup();
+  ServoSetup();
+  
+  
+  ////////////////////////////////////////////////////////
+  // File I/O
+  
+  // Check SD card Status - where we Store Config Files
+  Serial.print("Initializing SD card...");
+  if (!SD.begin(4)) 
+  {
+    Serial.println("initialization failed!");
+    return;
+  }
+  Serial.println("initialization done.");
+  
+  //Set up the Wifi Connection settings (IP, WEP & password)
+  if(!readWiFiSettings())
+  {
+    Serial.println("Error reading WiFi initialization file.");
+  }
+  
+  // Write some default values to the config file
+  if(!writeConfig())
+  {
+    Serial.println("Error writing to /media/sdcard/squirrelConfig.txt file.");
   }
     
 }
@@ -186,6 +264,50 @@ void loop()
         // if you've gotten to the end of the line (received a newline
         // character) and the line is blank, the http request has ended,
         // so you can send a reply
+        if (c == '\n' && currentLineIsBlank) {
+          //DEBUG
+          Serial.println(readString); //print to serial monitor for debuging
+          
+          // send a standard http response header
+          client.println("HTTP/1.1 200 OK");
+          client.println("Content-Type: text/html");
+          client.println("Connection: close");  // the connection will be closed after completion of the response
+          client.println("Refresh: 5");  // refresh the page automatically every 5 sec
+          client.println();
+          client.println("<!DOCTYPE HTML>");
+          client.println("<html>");
+          
+          //Let add a button to kick off something
+           client.println("<br />");  
+           client.println("<a href=\"/?button1on\"\">Turn On LED</a>");
+           client.println("<a href=\"/?button1off\"\">Turn Off LED</a><br />");   
+           client.println("<br />"); 
+           
+         // Totally from the Lego to fire!
+           client.println("<br />"); 
+           client.println("<a href=\"/?button2on\"\">Rotate Left</a>");
+           client.println("<a href=\"/?button2off\"\">Rotate Right</a><br />"); 
+           client.println("<p>Created by Michael P Russell</p>");  
+           client.println("<br />"); 
+          
+          // output the value of each analog input pin
+          for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
+            int sensorReading = analogRead(analogChannel);
+            client.print("analog input ");
+            client.print(analogChannel);
+            client.print(" is ");
+            client.print(sensorReading);
+            client.println("<br />");       
+          }
+          
+          //END of PAGE
+          client.println("</html>");
+           break;
+        }
+		
+		
+		///some stuff from Dustin... not even sure it will work!
+		/*
         if (c == '\n' && currentLineIsBlank) {
           //DEBUG
           Serial.println(readString); //print to serial monitor for debuging
@@ -244,6 +366,7 @@ void loop()
           client.println("</html>");
            break;
         }
+        */
         
         
         if (c == '\n') {
@@ -265,6 +388,8 @@ void loop()
    
     Serial.println("client disonnected");
     
+    
+    //////////////WEB - responce 
     //controls the Arduino if you press the buttons
            if (readString.indexOf("?button1on") >0)
            {
@@ -275,7 +400,8 @@ void loop()
                digitalWrite(led, LOW);
            }
            
-           //More Lego fun... 
+           //More Lego fun...
+          //////////////Web Controled SERVO MOTOR 
            if (readString.indexOf("?button2on") >0)
            {
                 for(pos = 0; pos < 180; pos += 3)  // goes from 0 degrees to 180 degrees 
@@ -300,7 +426,7 @@ void loop()
      }// end - if (client)
          
          
-  //////////////SERVO MOTOR
+  //////////////Analog SERVO MOTOR
     // Read the value of the angle sensor.
     int sensorPosition = analogRead(potentiometer);
 
@@ -335,3 +461,4 @@ void printWifiStatus() {
   Serial.print(rssi);
   Serial.println(" dBm");
 }
+
