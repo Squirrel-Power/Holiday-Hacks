@@ -58,7 +58,7 @@ bool readWiFiSettings()
   myFile = SD.open("squirrelConfig.txt");
   if (myFile) {
     Serial.println("squirrelConfig.txt");
-    Serial.println("Open WIFI conf.");
+    Serial.println("Open WIFI conf.\n");
    // read from the file until there's nothing else in it:
     while (myFile.available()) 
     {
@@ -68,7 +68,7 @@ bool readWiFiSettings()
     myFile.close();
   } else {
   	// if the file didn't open, print an error:
-    Serial.println("error opening squirrelConfig.txt");
+    Serial.println("error opening squirrelConfig.txt\n\n");
     return false;
   }
   
@@ -135,36 +135,36 @@ bool ServoSetup()
 bool WiFiSetup()
 {
      // check for the presence of the shield:
-   Serial.print("check for the presence of the shield");
+   Serial.print("check for the presence of the shield \n");
    if (WiFi.status() == WL_NO_SHIELD) 
    {
-     Serial.println("WiFi shield not present"); 
+     Serial.println("ERROR: WiFi shield not present! \n"); 
      // don't continue:
      while(true);
    } 
   
-  Serial.print("checking WiFi...");
+  Serial.print("\t checking WiFi...\n");
   String fv = WiFi.firmwareVersion();
   if( fv != "1.1.0" )
   {
-    Serial.println("Please upgrade the firmware");
+    Serial.println("Please upgrade the firmware!  \n\n");
     return false;
   }
   
   // attempt to connect to Wifi network:
-  Serial.print("connecting WiFi...");
+  Serial.print("\t connecting WiFi...\n");
   int connection_count = 0;
   while ( status != WL_CONNECTED) 
   { 
     //check for timeout
     if(connection_count > 1000)
     {
-      Serial.print("Attempting to connect to SSID: FAILED, to many attemps");
+      Serial.print("ERROR: Attempting to connect to SSID: FAILED, to many attemps\n\n");
       connection_count = 0;
       return false;
     }
     
-    Serial.print("Attempting to connect to SSID: ");
+    Serial.print("\t Attempting to connect to SSID: ");
     Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP network:    
     status = WiFi.begin(ssid, pass);
@@ -209,24 +209,24 @@ void setup()
   // File I/O
   
   // Check SD card Status - where we Store Config Files
-  Serial.print("Initializing SD card...");
+  Serial.print("Initializing SD card...\n");
   if (!SD.begin(4)) 
   {
-    Serial.println("initialization failed!");
+    Serial.println("ERROR: initialization failed!\n\n");
     return;
   }
-  Serial.println("initialization done.");
+  Serial.println("\t initialization done.\n");
   
   //Set up the Wifi Connection settings (IP, WEP & password)
   if(!readWiFiSettings())
   {
-    Serial.println("Error reading WiFi initialization file.");
+    Serial.println("Error reading WiFi initialization file. \n\n");
   }
   
   // Write some default values to the config file
   if(!writeConfig())
   {
-    Serial.println("Error writing to /media/sdcard/squirrelConfig.txt file.");
+    Serial.println("Error writing to /media/sdcard/squirrelConfig.txt file. \n\n");
   }
     
 }
@@ -276,18 +276,24 @@ void loop()
           client.println();
           client.println("<!DOCTYPE HTML>");
           client.println("<html>");
-          
+          //set the Squirrel Power background
+          //client.println("<body background=\"squirrelPower.jpg\" bgproperties=\"fixed\">"); 
+          //<IMG SRC="squirrelPower.jpg" ALT="Squirrel Power - may the force be with you!" WIDTH=32 HEIGHT=32>
+
           //Let add a button to kick off something
            client.println("<br />");  
-           client.println("<a href=\"/?button1on\"\">Turn On LED</a>");
-           client.println("<a href=\"/?button1off\"\">Turn Off LED</a><br />");   
+           client.println("<input type=button onClick=\"parent.location=\'?button1on\'\" value=\'Turn On LED\'>");
+           client.println("<input type=button onClick=\"parent.location=\'?button1off\'\" value=\'Turn Off LED\'><br />");
            client.println("<br />"); 
            
-         // Totally from the Lego to fire!
+         // Totally for the Lego to fire from servo!
+         // Note the use of the '?' in the page name!  it is important to match against
            client.println("<br />"); 
-           client.println("<a href=\"/?button2on\"\">Rotate Left</a>");
-           client.println("<a href=\"/?button2off\"\">Rotate Right</a><br />"); 
-           client.println("<p>Created by Michael P Russell</p>");  
+           client.println("<input type=button onClick=\"parent.location=\'?button2on\'\" value=\'Rotate Left\'>");
+           client.println("<input type=button onClick=\"parent.location=\'?button2off\'\" value=\'Rotate Right\'>");
+           //client.println("<br />"); 
+
+           client.println("<p>Created by Squirrel Power</p>");  
            client.println("<br />"); 
           
           // output the value of each analog input pin
@@ -303,71 +309,7 @@ void loop()
           //END of PAGE
           client.println("</html>");
            break;
-        }
-		
-		
-		///some stuff from Dustin... not even sure it will work!
-		/*
-        if (c == '\n' && currentLineIsBlank) {
-          //DEBUG
-          Serial.println(readString); //print to serial monitor for debuging
-          
-          // send a standard http response header
-          client.println("HTTP/1.1 200 OK");
-          client.println("Content-Type: text/html");
-          client.println("Connection: close");  // the connection will be closed after completion of the response
-          client.println("Refresh: 5");  // refresh the page automatically every 5 sec
-          client.println();
-          client.println("<!DOCTYPE HTML>");
-          client.println("<html>");
-          
-          //Write javascript functions
-           client.println("<script>");  
-           client.println("var ledStatusVar = "Off";");
-           client.println("function setLedStatus() {");
-           client.println("if(ledStatusVar == "Off")");
-           client.println("ledStatusVar = "On";");
-           client.println("else");
-           client.println("ledStatusVar = "Off"");
-           client.println("document.getElementById("ledStatus").innerHTML = ledStatusVar");
-           client.println("}");
-           client.println("</script>");           
-          
-          //Let add a button to kick off something
-           client.println("<br>");  
-           client.println("<button type=\"button\" onclick=\"setLedStatus()\">Turn On LED</button><br><br>");
-           client.println("<button type=\"button\" onclick=\"setLedStatus()\">Turn Off LED</button><br><br>");   
-           client.println("<br>"); 
-           
-           //Let add a button to kick off something
-           client.println("<br>");  
-           client.println("<button type=\"button\">Start UFO Program</button><br><br>");
-           client.println("<button type=\"button\">Stop UFO Program</button><br><br>");   
-           client.println("<br>"); 
-           
-         // Totally from the Lego to fire!
-           client.println("<button type=\"button\">Rotate Clockwise</button><br><br>");
-           client.println("<button type=\"button\">Rotate Counter-clockwise</button><br><br>"); 
-           client.println("<br>"); 
-          
-          // output the value of each analog input pin
-          for (int analogChannel = 0; analogChannel < 6; analogChannel++) {
-            int sensorReading = analogRead(analogChannel);
-            client.print("Analog input <b>");
-            client.print(analogChannel);
-            client.print("</b> is <b>");
-            client.print(sensorReading);
-            client.println("</b><br>");       
-          }
-          
-          client.println("<p>Created by Michael P Russell, Dustin Platter, and Siddhartha Kumar</p>");  
-          
-          //END of PAGE
-          client.println("</html>");
-           break;
-        }
-        */
-        
+        }        
         
         if (c == '\n') {
           // you're starting a new line
@@ -447,17 +389,17 @@ void loop()
  ******************************************************/
 void printWifiStatus() {
   // print the SSID of the network you're attached to:
-  Serial.print("SSID: ");
+  Serial.print("\t\tSSID: ");
   Serial.println(WiFi.SSID());
 
   // print your WiFi shield's IP address:
   IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
+  Serial.print("\t\tIP Address: ");
   Serial.println(ip);
 
   // print the received signal strength:
   long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
+  Serial.print("\t\tsignal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
 }
