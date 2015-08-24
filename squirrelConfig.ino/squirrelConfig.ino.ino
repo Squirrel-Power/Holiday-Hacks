@@ -1,6 +1,7 @@
 // Uses the Grove - Rotary Angle Sensor to control the position of the Grove - Servo.
 // Connect the Grove - Servo to the socket marked D3
 // Connect the Grove - Rotary Angle Sensor to A1
+// Connect the Grove - single LED to D5
 
 // Write a config file to SD card:
 // /media/sdcard/squirrelConfig.txt
@@ -12,7 +13,7 @@
  ** CS - pin 4
 */
 #include <Servo.h>  //For the groove servo
-#include <WiFi.h>  //For the Web Service
+#include <WiFi.h>   //For the Web Service
 #include <SPI.h>
 #include <SD.h>
 
@@ -39,15 +40,19 @@ String readString; //Global string to keep WEB requests - debug
 // Define the pins to which the servo (D3) and sensor(A1) are connected.
 const int pinServo = 3;
 const int potentiometer = 1;
-
-const int led = 8; //  and the LED
-//button at D4
-// tmp sensor = A0
-// LCD screen at I2C (the one closest to A0...)
-
 // Use a Servo object to represent and control the servo.
 Servo groveServo;
 int pos = 0;  //position of servo
+
+
+// Grove - LED connect to D8 (using the pin9)
+// the following pin which support PWM can be used:
+// 3, 5, 6, 9, 10, 11
+const int pinLed = 5; //  and the single LED
+
+//button at D4
+// tmp sensor = A0
+// LCD screen at I2C (the one closest to A0...)
 
 /******************************************************
  * readWiFiSettings - Read WiFi settings
@@ -191,6 +196,17 @@ bool SerialSetup()
    while (!Serial) 
    { ; } // wait for serial port to connect. Needed for Leonardo only
 }
+
+/******************************************************
+ * SinglePinLedSetup - 
+ * Grove - LED connect to D8 (using the pin9)
+ * the following pin which support PWM can be used:
+ * 3, 5, 6, 9, 10, 11
+ ******************************************************/
+bool SinglePinLedSetup()
+{
+   pinMode(pinLed, OUTPUT);  // set led OUTPUT
+}
 /******************************************************
  * setup - This is run only once!
  ******************************************************/
@@ -203,7 +219,7 @@ void setup()
   // Individual Device Setup
   WiFiSetup();
   ServoSetup();
-  
+  SinglePinLedSetup();
   
   ////////////////////////////////////////////////////////
   // File I/O
@@ -276,9 +292,11 @@ void loop()
           client.println();
           client.println("<!DOCTYPE HTML>");
           client.println("<html>");
-          //set the Squirrel Power background
-          //client.println("<body background=\"squirrelPower.jpg\" bgproperties=\"fixed\">"); 
-          //<IMG SRC="squirrelPower.jpg" ALT="Squirrel Power - may the force be with you!" WIDTH=32 HEIGHT=32>
+          //set the Squirrel Power background - 
+          //  MR: I never found the document root for the YUN web service, but that is where the
+          //      Image should go.
+          //client.println("<body background=\"\\home\\root\\squirrelPower.jpg\" bgproperties=\"fixed\">"); 
+          client.println("<IMG SRC=\"squirrelPower.jpg\" ALT=\"Squirrel Power - may the force be with you!\" WIDTH=250 HEIGHT=176>");
 
           //Let add a button to kick off something
            client.println("<br />");  
@@ -335,11 +353,13 @@ void loop()
     //controls the Arduino if you press the buttons
            if (readString.indexOf("?button1on") >0)
            {
-               digitalWrite(led, HIGH);
+               digitalWrite(pinLed, HIGH);
+               Serial.println("Single LED Light ON \n");
            }
            if (readString.indexOf("?button1off") >0)
            {
-               digitalWrite(led, LOW);
+               digitalWrite(pinLed, LOW);
+               Serial.println("Single LED Light OFF \n");
            }
            
            //More Lego fun...
@@ -382,6 +402,27 @@ void loop()
    
 
     delay(15);
+}
+
+/******************************************************
+ * SinglePinLedBreath - 
+ * Not Used, but gives dimming of single LCD
+ ******************************************************/
+bool SinglePinLedBreath()
+{
+     for(int i=0; i<256; i++)
+    {
+        analogWrite(pinLed, i);
+        delay(5);               // change delay time can breath faster or slower
+    }
+    delay(100);
+    
+    for(int i=254; i>=0; i--)
+    {
+        analogWrite(pinLed, i);
+        delay(5);               // change delay time can breath faster or slower
+    }
+    delay(500);
 }
 
 /******************************************************
