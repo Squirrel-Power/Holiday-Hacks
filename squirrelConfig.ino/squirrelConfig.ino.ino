@@ -449,14 +449,34 @@ void loop()
     groveServo.write(shaftPosition);
    
    
-   //Stepper Motor
-  while(!moveInProgress)
-  {
-    moveInProgress = true;
-    rndMove();
-  }
-
+   {//Stepper Motor - Separate Thread
+     pthread_t StepperThread;
+     //Start the new stepperFunction in a new thread
+     int p = pthread_create(&StepperThread, NULL, stepperFunction, (void*)0); 
+     if(p)
+     {
+       Serial.println("Error: Unable to create thread \n");
+     }
+     else
+     {
+        pthread_detach(StepperThread);
+     }
+   }
+     
     delay(15);
+}
+
+
+/******************************************************
+ * stepperFunction - fuction called for the stepperThread
+ ******************************************************/
+void *stepperFunction(void* x)
+{
+      while(!moveInProgress)
+    {
+      moveInProgress = true;
+      rndMove();
+    }
 }
 
 /******************************************************
