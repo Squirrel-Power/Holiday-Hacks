@@ -16,6 +16,7 @@
 #include <WiFi.h>   //For the Web Service
 #include <SPI.h>
 #include <SD.h>
+#include <Wire.h>   //For Stepper motor
 
 //File Input/Output Settings
 File myFile;  //Global file handle
@@ -44,7 +45,6 @@ const int potentiometer = 1;
 Servo groveServo;
 int pos = 0;  //position of servo
 
-
 // Grove - LED connect to D8 (using the pin9)
 // the following pin which support PWM can be used:
 // 3, 5, 6, 9, 10, 11
@@ -53,6 +53,30 @@ const int pinLed = 5; //  and the single LED
 //button at D4
 // tmp sensor = A0
 // LCD screen at I2C (the one closest to A0...)
+
+////////STEPPER
+int stp = 13;  
+int dir = 12; 
+int rst = 8;
+
+int maxPosition = 0;
+int minPosition = 0;
+boolean moveInProgress = false;
+int currentPosition = 0;
+int last_state_switch = 0;
+int last_state_switch2 = 0;
+int count_pinbutton2 = 0;
+
+int clockwise = 0;
+int counterClockwise = 1;
+
+const int pinButton = 4;  //In use... Fix this
+const int pinButton2 = 3; //In use... Fix this
+
+boolean buttonPressed = false;
+boolean buttonPressed2 = false;
+
+const int debounce_time = 50;
 
 /******************************************************
  * readWiFiSettings - Read WiFi settings
@@ -207,6 +231,27 @@ bool SinglePinLedSetup()
 {
    pinMode(pinLed, OUTPUT);  // set led OUTPUT
 }
+
+/******************************************************
+ * StepperSetup - 
+ ******************************************************/
+bool StepperSetup()
+{             
+  pinMode(stp, OUTPUT);
+  pinMode(dir, OUTPUT);       
+  digitalWrite(rst,LOW);
+  delay(10);
+  digitalWrite(rst,HIGH);
+  Serial1.begin(9600);
+  pinMode(pinButton, INPUT);
+  pinMode(pinButton2, INPUT);
+  attachInterrupt(pinButton,switch_state, FALLING);
+  attachInterrupt(pinButton2,switch_state2, FALLING);
+  last_state_switch = millis();
+  last_state_switch2 = millis();
+
+  autoCalibrate();
+}
 /******************************************************
  * setup - This is run only once!
  ******************************************************/
@@ -220,6 +265,9 @@ void setup()
   WiFiSetup();
   ServoSetup();
   SinglePinLedSetup();
+  
+  //Stepper Motor
+  StepperSetup();
   
   ////////////////////////////////////////////////////////
   // File I/O
@@ -400,6 +448,13 @@ void loop()
     // Use the Servo object to move the servo.
     groveServo.write(shaftPosition);
    
+   
+   //Stepper Motor
+  while(!moveInProgress)
+  {
+    moveInProgress = true;
+    rndMove();
+  }
 
     delay(15);
 }
@@ -445,3 +500,106 @@ void printWifiStatus() {
   Serial.println(" dBm");
 }
 
+
+//Stepper motor functions
+void one_step()
+{
+    digitalWrite(stp, HIGH);   
+    delay(10);               
+    digitalWrite(stp, LOW);  
+    delay(10); 
+}
+
+void autoCalibrate()
+{
+    
+   while(!buttonPressed)
+   {
+     Move(clockwise, 1); 
+   }
+   maxPosition = currentPosition;
+   
+   buttonPressed = false;
+  while(!buttonPressed)
+  {
+    Move(counterClockwise, 1);
+  }
+  minPosition = currentPosition;  
+}
+
+void Move (int direction, int steps)
+{ 
+  
+  if(direction == clockwise)
+  {
+    digitalWrite(dir, HIGH); 
+  }
+  else
+  {
+    digitalWrite(dir, LOW);
+  }
+  
+  for(int x = 0; x < steps; x++)
+  {
+   // delay(100);
+    one_step();  // I think we need to move faster...so like 10 at a time?????
+   if(direction == clockwise)
+    {
+      currentPosition++;
+    }
+    else
+    {
+      currentPosition--;
+    } 
+  }
+ // delay(100);
+}
+
+void rndMove()
+{
+  int rnd = random(minPosition, maxPosition + 1);
+  int rndDirection = random(clockwise, counterClockwise + 1);
+  
+  if(rndDirection == clockwise)
+  {
+	if((rnd +  currentPosition) > maxPosition)
+	{
+            rnd = maxPosition - currentPosition-1;
+	}
+  }
+  else
+  {
+    if((currentPosition - rnd) < minPosition)
+    {
+      rnd = currentPosition - minPosition+1;
+    }
+  }
+  Move(rndDirection, rnd);
+  moveInProgress = false;
+}
+
+void switch_state()
+{  
+    if((millis()- last_state_switch) > debounce_time)
+    { 
+        buttonPressed = true;
+        last_state_switch = millis();
+    }
+  
+}
+
+void switch_state2()
+{  
+    if((millis()- last_state_switch2) > debounce_time)
+    {   
+       if(count_pinbutton2%3 == 0)
+          Serial1.print("c");
+        else if(count_pinbutton2%3 == 1)
+          Serial1.print("h");
+        else if(count_pinbutton2%3 == 2)
+          Serial1.print("x");
+        last_state_switch2 = millis();
+        count_pinbutton2++;
+    }
+  
+}
