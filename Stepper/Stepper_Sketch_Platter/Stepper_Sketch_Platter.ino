@@ -66,12 +66,13 @@ void loop()
   }
 }
 
-void one_step()
+void movesteps(int number)
 {
+
     digitalWrite(stp, HIGH);   
-    delay(10);               
+    delay(number);               
     digitalWrite(stp, LOW);  
-    delay(10); 
+    delay(number); 
 }
 
 void autoCalibrate()
@@ -106,7 +107,8 @@ void Move (int direction, int steps)
   for(int x = 0; x < steps; x++)
   {
    // delay(100);
-    one_step();
+    //one_step();
+    movesteps(2);
    if(direction == clockwise)
     {
       currentPosition++;
