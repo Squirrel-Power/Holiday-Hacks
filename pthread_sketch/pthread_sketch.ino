@@ -41,7 +41,7 @@ WiFiServer server(8080);  //to get to web page use IP:8080
 String readString; //Global string to keep WEB requests - debug
 
 // Define the pins to which the servo (D3) and sensor(A1) are connected.
-const int pinServo = 3;
+const int pinServo = 5;
 const int potentiometer = 1;
 // Use a Servo object to represent and control the servo.
 Servo groveServo;
@@ -50,7 +50,7 @@ int pos = 0;  //position of servo
 // Grove - LED connect to D8 (using the pin9)
 // the following pin which support PWM can be used:
 // 3, 5, 6, 9, 10, 11
-const int pinLed = 5; //  and the single LED
+const int pinLed = 2; //  and the single LED
 
 //button at D4
 // tmp sensor = A0
@@ -252,7 +252,7 @@ bool StepperSetup()
   last_state_switch = millis();
   last_state_switch2 = millis();
 
-  autoCalibrate();
+ // autoCalibrate();
 }
 /******************************************************
  * setup - This is run only once!
@@ -294,6 +294,20 @@ void setup()
   {
     Serial.println("Error writing to /media/sdcard/squirrelConfig.txt file. \n\n");
   }
+
+    {//Stepper Motor - Separate Thread
+     pthread_t StepperThread;
+     //Start the new stepperFunction in a new thread
+     int p = pthread_create(&StepperThread, NULL, stepperFunction, (void*)0); 
+     if(p)
+     {
+       Serial.println("Error: Unable to create thread \n");
+     }
+     else
+     {
+        pthread_detach(StepperThread);
+     }
+   }
     
 }
 
@@ -437,7 +451,6 @@ void loop()
            
      }// end - if (client)
          
-         
   //////////////Analog SERVO MOTOR
     // Read the value of the angle sensor.
     int sensorPosition = analogRead(potentiometer);
@@ -451,14 +464,24 @@ void loop()
     groveServo.write(shaftPosition);
    
    
-   //Stepper Motor
-  while(!moveInProgress)
-  {
-    moveInProgress = true;
-    rndMove();
-  }
-
+ 
     delay(15);
+}
+ /******************************************************
+ * stepperFunction - fuction called for the stepperThread
+ ******************************************************/
+void *stepperFunction(void* x)
+{
+    autoCalibrate();
+    Serial.println("Hello");
+    while(true)
+    {
+      while(!moveInProgress)
+    {
+      moveInProgress = true;
+      rndMove();
+    }
+    }
 }
 
 /******************************************************
